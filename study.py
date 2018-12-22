@@ -1,2 +1,2 @@
 
-print("hogehoge")
+print("fugafuga")
