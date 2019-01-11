@@ -6,10 +6,12 @@ from bs4 import BeautifulSoup
 from time import sleep
 
 
-def main():
-    base_url = "http://date.kuronekoyamato.co.jp"
 
-    url = base_url + "/date/KokusaiTakkyubin?ACTID=J_RKWTJS0010&SEARCH_ID=02"
+def main():
+    base_url = "https://www.wikipedia.org/"
+
+    url = base_url + "wiki/%E9%A6%96%E9%83%BD%E3%81%AE%E4%B8%80%E8%A6%A7"
+
 
     # requestsを利用して一覧ページのURLを取得
     r = requests.get(url)
@@ -19,7 +21,7 @@ def main():
     soup = BeautifulSoup(html, 'html.parser')
 
     # classを指定してtable情報の取得
-    country_table = soup.find_all('table', class_='tableStyle01 linkIcon')
+    country_table = soup.find_all('table', class_='wikitable sortable jquery-tsblesorter')
 
     for country_raw in country_table:
 
@@ -50,16 +52,16 @@ def country_detail(name, url):
     soup = BeautifulSoup(html, 'html.parser')
 
     # table要素を取得
-    price_table = soup.find_all('table', class_='tableStyle02 elm-s')
+    info_table = soup.find_all('table', class_='infobox')
 
     # th, tdタグ要素を取得
-    headers = price_table[0].find_all('th')
-    prices = price_table[0].find_all('td')
+    english_name = info_table[0].find_all('tr')
+
 
     # 該当テキスト要素の取得
-    header = headers[2].text
-    price = prices[1].string
+    e_name = english_name[0].text
 
-    print(f"{name}: {header}: {price}")
+
+    print(f"{name}: {e_name}")
 
 main()
