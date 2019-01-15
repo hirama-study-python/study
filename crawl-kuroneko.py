@@ -42,9 +42,6 @@ def main():
                 break
 
 
-
-
-
 def country_detail(name, url):
 
     # 引数で指定されたURLからHTMLを取得
@@ -57,17 +54,26 @@ def country_detail(name, url):
     # table要素を取得
     info_table = soup.find_all('table', class_='infobox')
 
+    if len(info_table):
+        english_name = info_table[0].find_all('small')
+        overviews = soup.find_all('p')
 
-    english_name = info_table[0].find_all('small')
+        # 該当テキスト要素の取得
+        if len(english_name):
+            e_name = english_name[0].text
+        else:
+            e_name = ""
 
-    overviews = soup.find_all('p')
+        if len(overviews):
+            overview = overviews[1].text
+        else:
+            overview = ""
 
+    else:
+        e_name = ""
+        overview = ""
 
-    # 該当テキスト要素の取得
-    e_name = english_name[0].text
-    overview = overviews[1].text
-
-    print(f"　英名　: {e_name}")
+    print(f" 英名　: {e_name}")
     print(f' 概要 : {overview}')
 
 
