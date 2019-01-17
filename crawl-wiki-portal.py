@@ -12,29 +12,28 @@ def main():
     r = requests.get(url)
     html = r.content
 
+    # BeautifulSoupでHTMLをパース
     soup = BeautifulSoup(html, 'html.parser')
 
-    news_head = soup.find_all("h3")
+    #日付とカテゴリを取得
+    news_date = soup.find_all( 'span' , class_='mw-headline' )
     news_categories = soup.find_all("i")
+
     news_articles = soup.find_all("ul")
+    #news_article = news_articles.find_all("li")
 
     for n in range(30):
-        article = news_articles[n].find_all("li")
 
-        if article.find("<i>") > -1:
-            print("OK")
+        date = news_date[n].text
+        #artice = news_articles[n].text
+        category = news_categories[n].text
 
-    # for n in range(30):
-    #
-    #     news_date = news_head[n].find_all('span' , class_='mw-headline')
-    #
-    #
-    #     for n in news_date :
-    #         date = n.text
-    #
-    #         print(date)
-    #
-    #         sleep(2)
+        print(date +":"+ category)
+
+        sleep(2)
+
+
+
 
 main()
 
