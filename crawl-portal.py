@@ -2,6 +2,9 @@
 
 import requests
 from bs4 import BeautifulSoup
+from time import sleep
+import re
+
 
 
 def main():
@@ -28,6 +31,13 @@ def main():
 
         # <ui>タグ内の<li>タグを探す
         for news in newses.find_all('li'):
-            print(news.text)
+            for category in news.find_all("i"):
+                re_news = re.sub('（[^）]*）', '', news.text)
+                print(category.text)
+                print(re_news)
+
+            sleep( 2 )
+
+        
 
 main()
