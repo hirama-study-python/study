@@ -4,7 +4,8 @@ import requests
 from bs4 import BeautifulSoup
 from time import sleep
 import re
-
+import json
+from elasticsearch import Elasticsearch
 
 
 def main():
@@ -24,20 +25,34 @@ def main():
 
     for date_headline in date_headlines:
 
-        print(date_headline.text)
 
         # 日付見出しの次は必ず<ui>タグが設定されている
         newses = date_headline.next_sibling.string.next_sibling
 
         # <ui>タグ内の<li>タグを探す
-        for news in newses.find_all('li'):
-            for category in news.find_all("i"):
-                re_news = re.sub('（[^）]*）', '', news.text)
-                print(category.text)
-                print(re_news)
+        for i, news in enumerate(newses.find_all('li')):
 
-            sleep( 2 )
+            category = news.find("i")
+            re_news = re.sub('（[^）]*）', '', news.text)
 
-        
+            news_obj = {
+                "date": date_headline.text,
+                "category": category.text,
+                "news": re_news
+            }
+
+            id = re.sub('[年月日]','-', date_headline.text) + str(i)
+
+            save_news(id, news_obj)
+            print(json.dumps(news_obj, ensure_ascii=False))
+
+            break
+        break
+
+def save_news(id, obj):
+
+    es = Elasticsearch()
+
+    es.index('wiki-portal', 'news', id=id, body=obj)
 
 main()
