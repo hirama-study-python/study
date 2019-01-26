@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from time import sleep
 import re
 import json
-#from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch
 
 
 def main():
@@ -55,7 +55,7 @@ def detail(url):
     soup = BeautifulSoup( html , 'html.parser' )
 
     # ページ内のテーブルを取ってくる
-    date_headlines_table = soup.find( 'table' )
+    date_headlines_table = soup.find('div' ,class_ = "mw-parser-output")
 
     # 見出しの日付を取得する
     date_headlines = date_headlines_table.find_all( 'h3' )
@@ -76,6 +76,8 @@ def detail(url):
                 "news": re_news
             }
 
+            print(news_obj)
+
 
 
 
@@ -84,7 +86,7 @@ def detail(url):
             save_news( id , news_obj )
             print( json.dumps( news_obj , ensure_ascii=False ) )
             
-            
+
             sleep(2)
 
 
