@@ -44,8 +44,6 @@ def main():
 
 
 
-
-
 def detail(url):
 
     r = requests.get(url)
@@ -62,6 +60,7 @@ def detail(url):
 
     for date_headline in date_headlines:
 
+        date_detail = date_headline.find('span',class_ = "mw-headline")
         # 日付見出しの次は必ず<ui>タグが設定されている
         newses = date_headline.next_sibling.string.next_sibling
 
@@ -71,13 +70,10 @@ def detail(url):
             re_news = re.sub( '（[^）]*）' , '' , news.text )
 
             news_obj = {
-                "date": date_headline.text ,
+                "date": date_detail.text ,
                 "category": category.text ,
                 "news": re_news
             }
-
-            print(news_obj)
-
 
 
 
@@ -88,6 +84,9 @@ def detail(url):
             
 
             sleep(2)
+
+            break
+        break
 
 
 def save_news(id, obj):
