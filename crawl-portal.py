@@ -90,6 +90,12 @@ def detail(url):
             sleep(2)
 
 
+def save_news(id, obj):
+
+    es = Elasticsearch()
+
+    es.index('wiki-portal', 'news', id=id, body=obj)
+
 
 main()
 
