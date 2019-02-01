@@ -42,6 +42,8 @@ def main():
 
             sleep(2)
 
+            break
+
 
 
 def detail(url):
@@ -77,24 +79,37 @@ def detail(url):
 
 
 
-            id = re.sub( '[年月日]' , '-' , date_headline.text ) + str( i )
+            id = re.sub( '[年月日]' , '-' , date_detail.text ) + str( i )
 
             save_news( id , news_obj )
+            print(id)
             print( json.dumps( news_obj , ensure_ascii=False ) )
             
 
             sleep(2)
 
-            break
-        break
+
+
 
 
 def save_news(id, obj):
 
     es = Elasticsearch()
 
-    es.index('wiki-portal', 'news', id=id, body=obj)
+    es.index(index= 'wiki-portal', doc_type = 'news', id=id, body=obj)
 
 
-main()
+
+
+def query_news_id():
+    input_id = input("IDを入力してください：")
+    es = Elasticsearch()
+    res = es.search(index="wiki-portal",doc_type= "news" ,body={"query": {"match": {"_id":input_id}}})
+    result = json.dumps(res,ensure_ascii=False, indent = 4)
+
+    print(result)
+
+#main()
+
+query_news_id()
 
