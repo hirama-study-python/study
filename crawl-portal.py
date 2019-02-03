@@ -12,11 +12,9 @@ def main():
     base_url = "https://ja.wikipedia.org"
     url = base_url + "/wiki/Portal:最近の出来事"
 
-    r = requests.get(url)
-    html = r.content
+    soup = html_parse(url)
 
-    # BeautifulSoupでHTMLをパース
-    soup = BeautifulSoup(html, 'html.parser')
+    detail(url)
 
     # ページ内のテーブルを取ってくる
     date_headlines_table = soup.find('table')
@@ -42,17 +40,13 @@ def main():
 
             sleep(2)
 
-            break
+
 
 
 
 def detail(url):
 
-    r = requests.get(url)
-    html = r.content
-
-    # BeautifulSoupでHTMLをパース
-    soup = BeautifulSoup( html , 'html.parser' )
+    soup = html_parse(url)
 
     # ページ内のテーブルを取ってくる
     date_headlines_table = soup.find('div' ,class_ = "mw-parser-output")
@@ -68,12 +62,17 @@ def detail(url):
 
         # <ui>タグ内の<li>タグを探す
         for i , news in enumerate( newses.find_all( 'li' ) ):
-            category = news.find( "i" )
+            #カテゴリがない場合のエラー処理を実装
+            try:
+                category = news.find( "i" ).text
+            except AttributeError:
+                category = "-"
+
             re_news = re.sub( '（[^）]*）' , '' , news.text )
 
             news_obj = {
                 "date": date_detail.text ,
-                "category": category.text ,
+                "category": category ,
                 "news": re_news
             }
 
@@ -90,13 +89,35 @@ def detail(url):
 
 
 
+def html_parse(url) :
+    r = requests.get( url )
+    html = r.content
+
+    # BeautifulSoupでHTMLをパース
+    soup_value = BeautifulSoup( html , 'html.parser' )
+
+    return soup_value
+
 
 
 def save_news(id, obj):
-
+    #更新分のニュースを変数に代入
+    update_news = obj["news"]
     es = Elasticsearch()
+    #docker_volume上の要素を参照
+    res_news = es.search(index="wiki-portal",doc_type= "news" ,body={"query": {"match_all":{}}})
 
-    es.index(index= 'wiki-portal', doc_type = 'news', id=id, body=obj)
+    if id not in res_news:
+        #対象のニュースデータがない場合DBに対象ニュースを追加
+        es.index( index='wiki-portal' , doc_type='news' , id=id , body=obj )
+
+    elif update_news.text != res_news.text:
+        #対象のニュースがあるが、データの変更があった場合要素を更新
+        es.update(index= 'wiki-portal', doc_type = 'news', id=id, body=obj)
+
+    else:
+        #対象のニュースがあり、データの変更がない場合なにも行わない
+        pass
 
 
 
@@ -109,7 +130,7 @@ def query_news_id():
 
     print(result)
 
-#main()
+main()
 
-query_news_id()
+#query_news_id()
 
